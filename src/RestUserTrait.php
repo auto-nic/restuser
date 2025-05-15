@@ -48,7 +48,7 @@ trait RestUserTrait
 
         $response = \Illuminate\Support\Facades\Http::withHeaders([
             'token' => $token->token,
-            'user_id' => $token->tokenable_id,
+            'userId' => $token->tokenable_id,
         ])->post(config('app.identity_server_url') . '/api/synchronize-users');
 
         $json = json_decode($response->body(), true);
