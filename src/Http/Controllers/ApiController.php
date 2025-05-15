@@ -55,8 +55,8 @@ class ApiController extends Controller
             ], 400);
         }
 
-        $microserviceUuid = $request->header('microservice_uuid');
-        $customerId = $request->header('customer_id');
+        $microserviceUuid = $request->header('microserviceUuid');
+        $customerId = $request->header('customerId');
 
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
