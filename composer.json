@@ -2,7 +2,7 @@
     "name": "autonic/restuser",
     "description": "a way to handle user data using an external API instead of the standard user table",
     "type": "library",
-    "version": "1.0.0",
+    "version": "dev-main",
     "require": {
     },
     "license": "MIT",
