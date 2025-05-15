@@ -104,8 +104,8 @@ class UserGuard implements Guard
 
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'token' => $token->token,
-                'user_id' => $token->tokenable_id,
-                'microservice_uuid' => config('app.microservice_uuid'),
+                'userId' => $token->tokenable_id,
+                'microserviceUuid' => config('app.microservice_uuid'),
             ])->post(config('app.identity_server_url') . '/api/validate-token');
 
             if ($response->successful()) {
