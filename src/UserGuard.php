@@ -28,7 +28,7 @@ class UserGuard implements Guard
         $response = \Illuminate\Support\Facades\Http::withHeaders([
             'email' => $email,
             'password' => $password,
-            'microservice_uuid' => config('app.microservice_uuid'),
+            'microserviceUuid' => config('app.microservice_uuid'),
         ])->post(config('app.identity_server_url') . '/api/request-token');
 
         // if response is not successful, return the response

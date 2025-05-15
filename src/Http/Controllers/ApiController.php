@@ -61,14 +61,14 @@ class ApiController extends Controller
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
             return response()->json([
-                'microservice "'.$microserviceUuid.'" or customer "'.$customerId.'" empty'
+                ''
             ], 403);
         };
 
         // check if the microservice_uuid matches the APP_UUID
         if ($microserviceUuid !== $uuid) {
             return response()->json([
-                'posted uuid ' . $microserviceUuid . ' not equal to uuid on server: ' . $uuid
+                ''
             ], 403);
         };
 
@@ -134,14 +134,14 @@ class ApiController extends Controller
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
             return response()->json([
-                'microservice "'.$microserviceUuid.'" or customer "'.$customerId.'" empty'
+                ''
             ], 403);
         };
 
         // check if the microservice_uuid matches the APP_UUID
         if ($microserviceUuid !== $uuid) {
             return response()->json([
-                'posted uuid ' . $microserviceUuid . ' not equal to uuid on server: ' . $uuid
+                ''
             ], 403);
         };
 
