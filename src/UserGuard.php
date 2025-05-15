@@ -113,6 +113,8 @@ class UserGuard implements Guard
 
             } else {
 
+                Log::error('Token validation failed for user "' . $token->tokenable_id . '" with token: ' . $token->token . ' - ' . $response->body());
+
                 // TODO: have a look at this later to handle failure of individual tokens
                 // if any token is not valid, logout the user
                 $this->logout();
