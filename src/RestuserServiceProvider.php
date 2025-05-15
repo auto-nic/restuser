@@ -26,6 +26,7 @@ class RestuserServiceProvider extends ServiceProvider
 
     public function boot()
     {
+
         // Register the view path
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'restuser');
 
