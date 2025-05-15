@@ -19,6 +19,9 @@
         }
     },
     "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.0-dev"
+        },
         "laravel": {
             "providers": [
                 "Autonic\\RestUser\\RestuserServiceProvider"
