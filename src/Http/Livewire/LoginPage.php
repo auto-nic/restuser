@@ -86,7 +86,7 @@ class LoginPage extends Component
         } else {
 
             $response = $authResponse->json();
-            throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning']);
+            throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning: ' . $authResponse->status() . ' - ' . $authResponse->body()]);
 
         }
 
