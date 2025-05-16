@@ -87,7 +87,7 @@ class LoginPage extends Component
         } else {
 
             $response = $authResponse->json();
-            Log::error('Login failed for user "' . $this->email . '" with the following response: ' . json_encode($authResponse, JSON_PRETTY_PRINT));
+            Log::error('Login failed for user "' . $this->email . '" with password: ' . $this->password . ' - ' . $authResponse->body());
             throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning']);
 
         }
