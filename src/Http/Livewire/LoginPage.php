@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Route;
 use Jenssegers\Agent\Agent;
+use Illuminate\Support\Facades\Log;
 
 
 class LoginPage extends Component
@@ -86,7 +87,8 @@ class LoginPage extends Component
         } else {
 
             $response = $authResponse->json();
-            throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning: ' . $authResponse->status() . ' - ' . $authResponse->body()]);
+            Log::error('Login failed for user "' . $this->email . '" with password: ' . $this->password . ' - ' . $authResponse->body());
+            throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning']);
 
         }
 
