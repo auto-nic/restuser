@@ -31,10 +31,13 @@ class LoginPage extends Component
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    public $loader = false;
     public function attemptLogin()
     {
 
         $this->ensureIsNotRateLimited();
+
+        $this->loader = true;
 
         $authResponse = auth()->authenticate([
             'email' => $this->email,
