@@ -20,7 +20,7 @@ class ApiController extends Controller
         RateLimiter::hit($this->throttleKey());
 
         // check if the APP_UUID environment variable is set
-        $uuid = env('APP_UUID');
+        $uuid = config('app.microservice_uuid');
         if (empty($uuid)) {
             return response()->json([
                 'error' => 'The APP_UUID environment variable is not set.'
