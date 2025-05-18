@@ -54,7 +54,9 @@ class LoginPage extends Component
             $this->loader = false;
             throw ValidationException::withMessages(['email' => 'E-post och lösenord måste anges']);
         }
-        
+
+        dd('all fields are set');
+
         // preform login to external API
         $authResponse = auth()->authenticate([
             'email' => $this->email,
