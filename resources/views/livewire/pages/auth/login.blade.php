@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="'Mailadress'" />
-            <x-text-input wire:model.live="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="email" />
+            <x-text-input wire:model.live.debounce.500ms="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="email" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
         <div>
             <x-input-label for="password" :value="'Lösenord'" />
 
-            <x-text-input wire:model.live="password" id="password" class="block mt-1 w-full"
+            <x-text-input wire:model.live.debounce.500ms="password" id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
