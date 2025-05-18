@@ -80,7 +80,7 @@ use Illuminate\Support\Facades\Route;
                     console.log('Forcing Livewire resync');
                     window.Livewire.dispatch('input', { force: true });
                 }
-            }, 1000); // 1s delay
+            }, 500);
         });
 
         // New script to monitor error bag and auto-submit
