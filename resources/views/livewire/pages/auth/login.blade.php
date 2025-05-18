@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="'Mailadress'" />
-            <x-text-input wire:model.live="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
+            <x-text-input wire:model.live="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="email" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -57,17 +57,21 @@ use Illuminate\Support\Facades\Route;
     @push('scripts')
     <script>
         window.addEventListener('check-autofill', event => {
-            alert('Autofill detected');
-            const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
-            inputs.forEach(input => {
-                if (input.value) {
-                    alert(input.value);
-                    // Trigger input event to sync with Livewire
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
+            console.log('Autofill event triggered');
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
+                inputs.forEach(input => {
+                    if (input.value) {
+                        console.log(`Dispatching events for ${input.name}: ${input.value}`);
+                        // Dispatch multiple events to ensure Livewire picks up the change
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        input.dispatchEvent(new Event('blur', { bubbles: true }));
+                    }
+                });
+            }, 200); // Slightly increased delay
         });
     </script>
-    @endpush
+        @endpush
 
 </div>
