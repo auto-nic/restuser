@@ -56,70 +56,11 @@ use Illuminate\Support\Facades\Route;
 
     @push('scripts')
     <script>
-        // Existing check-autofill listener
-        window.addEventListener('check-autofill', event => {
-            console.log('Autofill event triggered');
-            setTimeout(() => {
-                const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
-                inputs.forEach(input => {
-                    if (input.value) {
-                        console.log(`Dispatching events for ${input.name}: ${input.value}`);
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-                        input.dispatchEvent(new Event('blur', { bubbles: true }));
-                        if (window.Livewire) {
-                            const component = window.Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
-                            if (component) {
-                                console.log(`Setting ${input.name} to ${input.value} in Livewire`);
-                                component.set(input.name, input.value);
-                            }
-                        }
-                    }
-                });
-                if (window.Livewire) {
-                    console.log('Forcing Livewire resync');
-                    window.Livewire.dispatch('input', { force: true });
-                }
-            }, 500);
-        });
-
-        // New script to monitor error bag and auto-submit
-        document.addEventListener('DOMContentLoaded', () => {
-            let hasErrored = false; // Flag to track if validation error occurred
-            let autoSubmitTriggered = false; // Prevent multiple auto-submissions
-
-            // Monitor Livewire component updates
-            window.Livewire.on('component.updated', (component) => {
-                alert('Component updated');
-                const componentId = document.querySelector('[wire\\:id]').getAttribute('wire:id');
-                const livewireComponent = window.Livewire.find(componentId);
-
-                if (!livewireComponent) return;
-
-                // Get current error bag
-                const errors = livewireComponent?.snapshot?.data?.errors || {};
-                const hasErrors = Object.keys(errors).length > 0;
-
-                console.log('Error bag state:', errors);
-
-                // Check if we had an error and now it's cleared
-                if (hasErrored && !hasErrors && !autoSubmitTriggered) {
-                    console.log('Error bag cleared, auto-submitting attemptLogin');
-                    autoSubmitTriggered = true; // Prevent further auto-submissions
-                    livewireComponent.call('attemptLogin'); // Trigger attemptLogin
-                }
-
-                // Update error state
-                hasErrored = hasErrors;
-            });
-
-            // Reset autoSubmitTriggered on form submission to allow retries
-            window.Livewire.on('commit', () => {
-                console.log('Form submitted, resetting auto-submit flag');
-                autoSubmitTriggered = false;
-            });
-        });
+        window.onload = () => {
+            const emailInput = document.querySelector('input[name="email"]');
+            alert(emailInput ? emailInput.value : 'Email input not found');
+        };
     </script>
-        @endpush
+    @endpush
 
 </div>
