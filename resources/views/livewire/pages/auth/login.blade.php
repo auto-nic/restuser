@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
     </div>
     @endif
 
-    <form wire:submit.prevent="attemptLogin" class="space-y-6 @if($loader) opacity-30 @endif">
+    <form wire:id="123456789" wire:submit.prevent="attemptLogin" class="space-y-6 @if($loader) opacity-30 @endif">
 
         <!-- Email Address -->
         <div>
