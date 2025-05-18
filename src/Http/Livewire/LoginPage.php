@@ -26,6 +26,14 @@ class LoginPage extends Component
     #[Validate('boolean')]
     public bool $remember = false;
 
+    public function mount()
+    {
+        if (auth()->check()) {
+            dd('User is already logged in');
+            return redirect(config('app.url') . config('restuser.redirect_after_login_desktop'));
+        }
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -44,6 +52,11 @@ class LoginPage extends Component
         // prevent too many login attempts
         $this->ensureIsNotRateLimited();
 
+        // verify that both email and password are set
+        if (empty($this->email) || empty($this->password)) {
+            throw ValidationException::withMessages(['email' => 'E-post och lösenord måste anges']);
+        }
+        
         // activate loading animation
         $this->loader = true;
 
