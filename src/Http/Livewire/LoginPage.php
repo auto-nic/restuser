@@ -35,10 +35,19 @@ class LoginPage extends Component
     public function attemptLogin()
     {
 
+        // this calls a function that binds auto-filled values to the input fields
+        // this is a workaround for cases when livewire is not able to bind the values
+        // to the input fields, for example when using autofill in the browser
+        // the script is added in login.blade.php
+        $this->dispatch('check-autofill');
+
+        // prevent too many login attempts
         $this->ensureIsNotRateLimited();
 
+        // activate loading animation
         $this->loader = true;
 
+        // preform login to external API
         $authResponse = auth()->authenticate([
             'email' => $this->email,
             'password' => $this->password,

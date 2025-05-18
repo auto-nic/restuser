@@ -53,4 +53,18 @@ use Illuminate\Support\Facades\Route;
             </x-primary-button>
         </div>
     </form>
+
+    @script
+    <script>
+        window.addEventListener('check-autofill', event => {
+            const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
+            inputs.forEach(input => {
+                if (input.value) {
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        });
+    </script>
+    @endscript
+
 </div>
