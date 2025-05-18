@@ -47,7 +47,7 @@ class LoginPage extends Component
         // activate loading animation
         $this->loader = true;
 
-        usleep(200000); // Sleep for 0.2 seconds (200,000 microseconds)
+        usleep(600000); // Sleep for 0.2 seconds (200,000 microseconds)
 
         // verify that both email and password are set
         if (empty($this->email) || empty($this->password)) {
