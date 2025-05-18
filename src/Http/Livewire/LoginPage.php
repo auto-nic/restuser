@@ -44,7 +44,6 @@ class LoginPage extends Component
         // the script is added in login.blade.php
         $this->dispatch('check-autofill');
 
-        return;
         // activate loading animation
         $this->loader = true;
 
