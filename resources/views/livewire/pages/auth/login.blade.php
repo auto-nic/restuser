@@ -69,7 +69,7 @@ use Illuminate\Support\Facades\Route;
                         if (window.Livewire) {
                             const component = window.Livewire.find(document.querySelector('[wire\\:id]')?.getAttribute('wire:id'));
                             if (component) {
-                                console.alert(`Setting ${input.name} to ${input.value} in Livewire`);
+                                alert(`Setting ${input.name} to ${input.value} in Livewire`);
                                 component.set(input.name, input.value);
                             }
                         }
