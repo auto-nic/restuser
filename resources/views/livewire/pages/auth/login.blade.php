@@ -54,21 +54,86 @@ use Illuminate\Support\Facades\Route;
         </div>
     </form>
 
-    @script
+    @push('scripts')
     <script>
-        window.addEventListener('check-autofill', event => {
-            setTimeout(() => {
-                const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
-                inputs.forEach(input => {
-                    if (input.value) {
-                        // alert(input.value);
-                        // Trigger input event to sync with Livewire
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
+        try {
+            console.log('Autofill script loaded');
+
+            // Run immediately, with retries
+            const trySyncInputs = (attempt = 1, maxAttempts = 3) => {
+                setTimeout(() => {
+                    console.log(`Attempt ${attempt} to sync autofilled inputs`);
+                    const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
+                    let synced = false;
+
+                    inputs.forEach(input => {
+                        if (input.value) {
+                            ['input', 'change', 'input.wire.model'].forEach(eventType => {
+                                const event = eventType === 'input.wire.model'
+                                    ? new CustomEvent('input.wire.model', { bubbles: true, detail: { value: input.value } })
+                                    : new Event(eventType, { bubbles: true });
+                                input.dispatchEvent(event);
+                                console.log(`Dispatched ${eventType} event for ${input.name}: ${input.value}`);
+                            });
+                            synced = true;
+                        }
+                    });
+
+                    if (typeof Livewire !== 'undefined') {
+                        const component = Livewire.first(component => component.name === 'auth.login');
+                        if (component) {
+                            const emailInput = document.querySelector('input[name="email"]');
+                            const passwordInput = document.querySelector('input[name="password"]');
+                            const email = component.get('email');
+                            const password = component.get('password');
+
+                            if (emailInput.value && !email) {
+                                component.set('email', emailInput.value, true);
+                                console.log('Force set email to:', emailInput.value);
+                            }
+                            if (passwordInput.value && !password) {
+                                component.set('password', passwordInput.value, true);
+                                console.log('Force set password to:', passwordInput.value);
+                            }
+
+                            console.log('Livewire email:', email || 'null');
+                            console.log('Livewire password:', password ? 'provided' : 'missing');
+
+                            if (!email && synced && attempt < maxAttempts) {
+                                console.log('State not synced, retrying...');
+                                trySyncInputs(attempt + 1, maxAttempts);
+                            }
+                        } else {
+                            console.error('Livewire component auth.login not found');
+                            if (attempt < maxAttempts) {
+                                console.log('Retrying due to missing component...');
+                                trySyncInputs(attempt + 1, maxAttempts);
+                            }
+                        }
+                    } else {
+                        console.error('Livewire not defined');
+                        if (attempt < maxAttempts) {
+                            console.log('Retrying due to missing Livewire...');
+                            trySyncInputs(attempt + 1, maxAttempts);
+                        }
                     }
+                }, attempt * 500);
+            };
+
+            // Run on DOMContentLoaded or immediately
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log('DOMContentLoaded fired');
+                    trySyncInputs();
                 });
-            }, 100); // Small delay to ensure Livewire is ready
-        });
+            } else {
+                console.log('DOM already loaded, running sync');
+                trySyncInputs();
+            }
+        } catch (error) {
+            console.error('Script error:', error);
+        }
     </script>
-    @endscript
+    @endpush
 
 </div>
