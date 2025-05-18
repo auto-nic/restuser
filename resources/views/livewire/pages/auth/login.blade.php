@@ -54,10 +54,9 @@ use Illuminate\Support\Facades\Route;
         </div>
     </form>
 
-    @push('scripts')
+    @script
     <script>
-        document.addEventListener('livewire:init', () => {
-            // Wait for Livewire to initialize
+        window.addEventListener('check-autofill', event => {
             setTimeout(() => {
                 const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
                 inputs.forEach(input => {
@@ -70,6 +69,6 @@ use Illuminate\Support\Facades\Route;
             }, 100); // Small delay to ensure Livewire is ready
         });
     </script>
-    @endpush
+    @endscript
 
 </div>
