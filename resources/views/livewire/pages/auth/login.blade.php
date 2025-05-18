@@ -48,7 +48,7 @@ use Illuminate\Support\Facades\Route;
                 </a>
             @endif
 
-            <x-primary-button class="ms-3" wire:click="attemptLogin()">
+            <x-primary-button class="ms-3">
                 Logga in
             </x-primary-button>
         </div>
