@@ -54,17 +54,21 @@ use Illuminate\Support\Facades\Route;
         </div>
     </form>
 
-    @script
+    @push('scripts')
     <script>
-        window.addEventListener('check-autofill', event => {
-            const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
-            inputs.forEach(input => {
-                if (input.value) {
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
+        document.addEventListener('livewire:init', () => {
+            // Wait for Livewire to initialize
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
+                inputs.forEach(input => {
+                    if (input.value) {
+                        // Trigger input event to sync with Livewire
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+            }, 100); // Small delay to ensure Livewire is ready
         });
     </script>
-    @endscript
+    @endpush
 
 </div>
