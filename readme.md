@@ -6,16 +6,6 @@ After installing this package you need to add:
             'auth' => \Autonic\Restuser\Middleware\AuthenticateWithRestUser::class,
         ]);
 
-
-
-[Providers/AuthServiceProvider.php]:
-
-        Auth::extend('external_user_auth', function ($app, $name, array $config) {
-            return new \Autonic\Restuser\UserGuard(Auth::createUserProvider($config['provider']));
-        });
-
-
-
 [config/app.php]:
 
     'providers' => [
@@ -24,13 +14,33 @@ After installing this package you need to add:
 
     ]
 
-
-
 [config/auth.php]
+
+    'defaults' => [
+        'guard' => 'restuser', // Set restuser as default
+        'passwords' => 'users',
+    ],
 
     'guards' => [
         'web' => [
-            'driver' => 'external_user_auth',
+            'driver' => 'session', // Use the guard from the package
             'provider' => 'users',
         ],
+        'restuser' => [
+            'driver' => 'restuser',
+            'provider' => 'restuser',
+        ],
+    ],
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'restuser' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
     ],
