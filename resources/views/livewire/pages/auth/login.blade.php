@@ -62,6 +62,7 @@ use Illuminate\Support\Facades\Route;
                 const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
                 inputs.forEach(input => {
                     if (input.value) {
+                        alert(input.value);
                         // Trigger input event to sync with Livewire
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                     }

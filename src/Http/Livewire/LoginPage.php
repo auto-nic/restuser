@@ -26,14 +26,6 @@ class LoginPage extends Component
     #[Validate('boolean')]
     public bool $remember = false;
 
-    public function mount()
-    {
-        if (auth()->check()) {
-            dd('User is already logged in');
-            return redirect(config('app.url') . config('restuser.redirect_after_login_desktop'));
-        }
-    }
-
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -43,12 +35,6 @@ class LoginPage extends Component
     public function attemptLogin()
     {
 
-        // this calls a function that binds auto-filled values to the input fields
-        // this is a workaround for cases when livewire is not able to bind the values
-        // to the input fields, for example when using autofill in the browser
-        // the script is added in login.blade.php
-        $this->dispatch('check-autofill');
-
         // prevent too many login attempts
         $this->ensureIsNotRateLimited();
 
@@ -56,7 +42,7 @@ class LoginPage extends Component
         if (empty($this->email) || empty($this->password)) {
             throw ValidationException::withMessages(['email' => 'E-post och lösenord måste anges']);
         }
-        
+
         // activate loading animation
         $this->loader = true;
 
