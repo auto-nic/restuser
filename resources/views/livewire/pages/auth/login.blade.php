@@ -73,7 +73,7 @@ use Illuminate\Support\Facades\Route;
                     console.log('Forcing Livewire resync');
                     window.Livewire.dispatch('input', { force: true });
                 }
-            }, 200); // Slightly increased delay
+            }, 500); // Slightly increased delay
         });
     </script>
         @endpush
