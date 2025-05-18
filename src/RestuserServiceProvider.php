@@ -27,6 +27,11 @@ class RestuserServiceProvider extends ServiceProvider
     public function boot()
     {
 
+        // Register restuser driver
+        $this->app['auth']->extend('restuser', function ($app, $name, array $config) {
+            return $app->make(UserGuard::class);
+        });
+        
         // Register the view path
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'restuser');
 

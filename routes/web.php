@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Volt;
 
-
 Route::redirect('/login', '/'); // this redirects /login to /, which is the login page
-Route::get('/', LoginPage::class)->name('login');
+
+Route::middleware(['web'])->group(function () {
+    Route::get('/', LoginPage::class)->name('login');
+});
 
 Route::get('/select-resource', SelectResource::class)->middleware('auth')->name('select-resource');
 

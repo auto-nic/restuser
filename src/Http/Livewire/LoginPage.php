@@ -23,8 +23,30 @@ class LoginPage extends Component
     #[Validate('required|string')]
     public string $password = '';
 
-    #[Validate('boolean')]
-    public bool $remember = false;
+    public $redirectAfterLogin;
+    public function mount()
+    {
+
+        // check if user should view mobile or desktop version
+        $agent = new Agent();
+
+        if ($agent->isDesktop()) {
+            $this->redirectAfterLogin = config('restuser.redirect_after_login_desktop');
+        } elseif ($agent->isTablet()) {
+            $this->redirectAfterLogin = config('restuser.redirect_after_login_tablet');
+        } elseif ($agent->isMobile()) {
+            $this->redirectAfterLogin = config('restuser.redirect_after_login_mobile');
+        } else {
+            $this->redirectAfterLogin = config('restuser.redirect_after_login_desktop');
+        }
+
+        // check if user is already logged in
+        // if user is already logged in, redirect to the correct URL
+        if (auth()->check()) {
+            return redirect(config('app.url') . $this->redirectAfterLogin);
+        }
+
+    }
 
     /**
      * Attempt to authenticate the request's credentials.
@@ -59,19 +81,6 @@ class LoginPage extends Component
                     throw ValidationException::withMessages(['email' => 'Grundinställningarna för ditt företag saknas, kontakta supporten']);
                 }
 
-                // check if user should view mobile or desktop version
-                $agent = new Agent();
-
-                if ($agent->isDesktop()) {
-                    $redirectUrl = config('restuser.redirect_after_login_desktop');
-                } elseif ($agent->isTablet()) {
-                    $redirectUrl = config('restuser.redirect_after_login_tablet');
-                } elseif ($agent->isMobile()) {
-                    $redirectUrl = config('restuser.redirect_after_login_mobile');
-                } else {
-                    $redirectUrl = config('restuser.redirect_after_login_desktop');
-                }
-
                 // set selected token (we default to first token - user can change it later)
                 session()->put('selected_token', 0);
 
@@ -79,7 +88,7 @@ class LoginPage extends Component
                 \App\Models\User::synchronizeUsers();
 
                 // redirect user to the correct URL
-                return redirect(config('app.url') . $redirectUrl);
+                return redirect(config('app.url') . $this->redirectAfterLogin);
 
             } else {
 
