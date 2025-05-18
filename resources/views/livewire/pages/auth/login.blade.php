@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
     </div>
     @endif
 
-    <form wire:id="123456789" wire:submit.prevent="attemptLogin" class="space-y-6 @if($loader) opacity-30 @endif">
+    <form wire:submit.prevent="attemptLogin" class="space-y-6 @if($loader) opacity-30 @endif">
 
         <!-- Email Address -->
         <div>
@@ -90,6 +90,7 @@ use Illuminate\Support\Facades\Route;
 
             // Monitor Livewire component updates
             window.Livewire.on('component.updated', (component) => {
+                alert('Component updated');
                 const componentId = document.querySelector('[wire\\:id]').getAttribute('wire:id');
                 const livewireComponent = window.Livewire.find(componentId);
 
