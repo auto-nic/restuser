@@ -63,17 +63,24 @@ use Illuminate\Support\Facades\Route;
                 inputs.forEach(input => {
                     if (input.value) {
                         console.log(`Dispatching events for ${input.name}: ${input.value}`);
-                        // Dispatch multiple events to ensure Livewire picks up the change
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                         input.dispatchEvent(new Event('change', { bubbles: true }));
                         input.dispatchEvent(new Event('blur', { bubbles: true }));
+                        // Explicitly update Livewire's state
+                        if (window.Livewire) {
+                            const component = window.Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                            if (component) {
+                                console.log(`Setting ${input.name} to ${input.value} in Livewire`);
+                                component.set(input.name, input.value);
+                            }
+                        }
                     }
                 });
                 if (window.Livewire) {
                     console.log('Forcing Livewire resync');
                     window.Livewire.dispatch('input', { force: true });
                 }
-            }, 500); // Slightly increased delay
+            }, 500);
         });
     </script>
         @endpush
