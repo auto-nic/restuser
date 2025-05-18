@@ -41,7 +41,11 @@ class LoginPage extends Component
         // the script is added in login.blade.php
         $this->dispatch('check-autofill');
 
-        return;
+        // activate loading animation
+        $this->loader = true;
+
+        sleep(1);
+
         // prevent too many login attempts
         $this->ensureIsNotRateLimited();
 
@@ -50,9 +54,6 @@ class LoginPage extends Component
             throw ValidationException::withMessages(['email' => 'E-post och lösenord måste anges']);
         }
         
-        // activate loading animation
-        $this->loader = true;
-
         // preform login to external API
         $authResponse = auth()->authenticate([
             'email' => $this->email,
