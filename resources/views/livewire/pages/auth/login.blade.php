@@ -61,21 +61,12 @@ use Illuminate\Support\Facades\Route;
                 const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');
                 inputs.forEach(input => {
                     if (input.value) {
-                        console.log(`Autofill detected for ${input.name}: ${input.value}`);
-                        alert(`Autofill detected for ${input.name}: ${input.value}`); // Alert for debugging
-                        // Dispatch input event for Livewire
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                         // Directly set Livewire state
                         if (window.Livewire) {
                             const component = window.Livewire.find(document.querySelector('[wire\\:id]')?.getAttribute('wire:id'));
-                            if (component) {
-                                alert(`Setting ${input.name} to ${input.value} in Livewire`);
-                                component.set(input.name, input.value);
-                            }
+                            if (component) component.set(input.name, input.value);
                         }
-                    } else {
-                        console.log(`No value for ${input.name}`);
-                        alert(`${input.name} is empty`);
                     }
                 });
             }, 500); // 500ms delay to catch late autofill
