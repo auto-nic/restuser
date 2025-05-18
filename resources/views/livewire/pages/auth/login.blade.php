@@ -69,6 +69,10 @@ use Illuminate\Support\Facades\Route;
                         input.dispatchEvent(new Event('blur', { bubbles: true }));
                     }
                 });
+                if (window.Livewire) {
+                    console.log('Forcing Livewire resync');
+                    window.Livewire.dispatch('input', { force: true });
+                }
             }, 200); // Slightly increased delay
         });
     </script>
