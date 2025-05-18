@@ -56,6 +56,9 @@ use Illuminate\Support\Facades\Route;
 
     @push('scripts')
     <script>
+        // this function is used to bind pre-filled values from the browser's autofill to Livewire
+        // it is necessary to trigger the input event manually to update Livewire's state
+        // because Livewire does not detect a pre-made autofill event
         window.onload = () => {
             setTimeout(() => {
                 const inputs = document.querySelectorAll('input[name="email"], input[name="password"]');

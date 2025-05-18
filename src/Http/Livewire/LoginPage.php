@@ -38,24 +38,8 @@ class LoginPage extends Component
         // prevent too many login attempts
         $this->ensureIsNotRateLimited();
 
-        // this calls a function that binds auto-filled values to the input fields
-        // this is a workaround for cases when livewire is not able to bind the values
-        // to the input fields, for example when using autofill in the browser
-        // the script is added in login.blade.php
-        $this->dispatch('check-autofill');
-
         // activate loading animation
         $this->loader = true;
-
-        usleep(1500000);
-
-        // verify that both email and password are set
-        if (empty($this->email) || empty($this->password)) {
-            $this->loader = false;
-            throw ValidationException::withMessages(['email' => 'E-post och lösenord måste anges']);
-        }
-
-        dd('all fields are set');
 
         // preform login to external API
         $authResponse = auth()->authenticate([
