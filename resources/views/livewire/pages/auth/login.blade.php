@@ -62,14 +62,14 @@ use Illuminate\Support\Facades\Route;
                 inputs.forEach(input => {
                     if (input.value) {
                         console.log(`Autofill detected for ${input.name}: ${input.value}`);
-                        alert(`${input.name}: ${input.value}`); // Alert for debugging
+                        alert(`Autofill detected for ${input.name}: ${input.value}`); // Alert for debugging
                         // Dispatch input event for Livewire
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                         // Directly set Livewire state
                         if (window.Livewire) {
                             const component = window.Livewire.find(document.querySelector('[wire\\:id]')?.getAttribute('wire:id'));
                             if (component) {
-                                console.log(`Setting ${input.name} to ${input.value} in Livewire`);
+                                console.alert(`Setting ${input.name} to ${input.value} in Livewire`);
                                 component.set(input.name, input.value);
                             }
                         }
