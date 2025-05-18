@@ -78,7 +78,7 @@ use Illuminate\Support\Facades\Route;
                         alert(`${input.name} is empty`);
                     }
                 });
-            }, 100); // 500ms delay to catch late autofill
+            }, 500); // 500ms delay to catch late autofill
         };
     </script>
     @endpush
