@@ -56,6 +56,7 @@ use Illuminate\Support\Facades\Route;
 
     @push('scripts')
     <script>
+        // Existing check-autofill listener
         window.addEventListener('check-autofill', event => {
             console.log('Autofill event triggered');
             setTimeout(() => {
@@ -66,7 +67,6 @@ use Illuminate\Support\Facades\Route;
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                         input.dispatchEvent(new Event('change', { bubbles: true }));
                         input.dispatchEvent(new Event('blur', { bubbles: true }));
-                        // Explicitly update Livewire's state
                         if (window.Livewire) {
                             const component = window.Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
                             if (component) {
@@ -80,7 +80,43 @@ use Illuminate\Support\Facades\Route;
                     console.log('Forcing Livewire resync');
                     window.Livewire.dispatch('input', { force: true });
                 }
-            }, 500);
+            }, 1000); // 1s delay
+        });
+
+        // New script to monitor error bag and auto-submit
+        document.addEventListener('DOMContentLoaded', () => {
+            let hasErrored = false; // Flag to track if validation error occurred
+            let autoSubmitTriggered = false; // Prevent multiple auto-submissions
+
+            // Monitor Livewire component updates
+            window.Livewire.on('component.updated', (component) => {
+                const componentId = document.querySelector('[wire\\:id]').getAttribute('wire:id');
+                const livewireComponent = window.Livewire.find(componentId);
+
+                if (!livewireComponent) return;
+
+                // Get current error bag
+                const errors = livewireComponent?.snapshot?.data?.errors || {};
+                const hasErrors = Object.keys(errors).length > 0;
+
+                console.log('Error bag state:', errors);
+
+                // Check if we had an error and now it's cleared
+                if (hasErrored && !hasErrors && !autoSubmitTriggered) {
+                    console.log('Error bag cleared, auto-submitting attemptLogin');
+                    autoSubmitTriggered = true; // Prevent further auto-submissions
+                    livewireComponent.call('attemptLogin'); // Trigger attemptLogin
+                }
+
+                // Update error state
+                hasErrored = hasErrors;
+            });
+
+            // Reset autoSubmitTriggered on form submission to allow retries
+            window.Livewire.on('commit', () => {
+                console.log('Form submitted, resetting auto-submit flag');
+                autoSubmitTriggered = false;
+            });
         });
     </script>
         @endpush
