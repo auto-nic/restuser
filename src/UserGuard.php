@@ -175,18 +175,6 @@ class UserGuard implements Guard
 
         $this->collectTokensFromSession();
 
-        // if no token is selected, redirect to select-resource
-        /*
-        if (session('selected_token') === null) {
-            return redirect('/select-resource');
-        }
-
-        // if no token exists, logout user
-        if ($this->tokens()->count() === 0) {
-            return redirect('/logout');
-        }
-        */
-
         // otherwise, return the selected token
         return isset($this->tokens[session('selected_token')]) ? $this->tokens[session('selected_token')] : null;
 
