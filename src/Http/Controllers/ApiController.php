@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
@@ -129,7 +130,7 @@ class ApiController extends Controller
         }
 
         $microserviceUuid = $request->header('microservice_uuid');
-        $customerId = $request->header('customer_id');
+        $customerId = $request->header('customerId');
 
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
@@ -167,6 +168,91 @@ class ApiController extends Controller
             ], 400);
 
         }
+
+    }
+
+    /**
+     * Trigger user synchronization.
+     * 
+     *   This quirky method exists so that the main server (identity server) can trigger
+     *   a user synchronization on a microservice server.
+     *   This is needed for example when a user is added / removed on the main server.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function triggerUserSynchronization(\Illuminate\Http\Request $request)
+    {
+
+        debug_logging('');
+        debug_logging('');
+
+        $this->ensureIsNotRateLimited();
+
+        debug_logging('rate limit ok');
+
+        RateLimiter::hit($this->throttleKey());
+
+
+        // check if the APP_UUID environment variable is set
+        $uuid = config('app.microservice_uuid');
+        if (empty($uuid)) {
+            return response()->json([
+                'error' => 'The APP_UUID environment variable is not set.'
+            ], 400);
+        };
+
+        debug_logging('APP_UUID is set in .env');
+
+        // check if the IDENTITY_SERVER_TOKEN environment variable is set
+        $serverToken = config('app.identity_server_token');
+        if (empty($serverToken)) {
+            return response()->json([
+                'error' => 'The IDENTITY_SERVER_TOKEN environment variable is not set.'
+            ], 400);
+        };
+
+        debug_logging('IDENTITY_SERVER_TOKEN is set in .env');
+
+        $serverAccessToken = $request->header('serverAccessToken');
+        $microserviceUuid = $request->header('microserviceUuid');
+        $customerId = $request->header('customerId');
+
+        // verify that the microservice_uuid and customer_id are not empty
+        if (empty($microserviceUuid) || empty($customerId)) {
+            return response()->json([
+                'microserviceUuid or customerId is missing'
+            ], 403);
+        };
+
+        debug_logging('microserviceUuid and customerId are set in headers');
+
+        // check if the microservice_uuid matches the APP_UUID
+        if ($microserviceUuid !== $uuid) {
+            return response()->json([
+                'microserviceUuid does not match'
+            ], 403);
+        };
+
+        debug_logging('microserviceUuid sent in headers matches APP_UUID in .env');
+
+        // check if the serverAccessToken matches the IDENTITY_SERVER_TOKEN
+        if ($serverAccessToken !== $serverToken) {
+            return response()->json([
+                'serverAccessToken does not match'
+            ], 403);
+        };
+
+        debug_logging('serverAccessToken sent in headers matches IDENTITY_SERVER_TOKEN in .env');
+        debug_logging('all ok - now dispatching job to synchronize users');
+
+        // fetch user data from API and store in local database
+        \Autonic\Restuser\Jobs\SynchronizeUserData::dispatch($customerId);
+
+        // return success response
+        return response()->json([
+            '',
+        ], 200);
 
     }
 

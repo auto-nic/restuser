@@ -2,6 +2,8 @@
 
 namespace Autonic\Restuser;
 
+use Illuminate\Support\Facades\Log;
+
 trait RestUserTrait
 {
 
@@ -37,28 +39,38 @@ trait RestUserTrait
 
     }
 
-    public static function synchronizeUsers()
+    public static function synchronizeUsers(int $customerId)
     {
 
-        $token = auth()->token();
+        if(!$customerId) throw new \Exception('Customer ID not passed');
 
-        if(!$token) {
-            throw new \Exception('Token not found in session');
-        }
+        $url = config('app.identity_server_url') . '/api/list-customer-users';
 
         $response = \Illuminate\Support\Facades\Http::withHeaders([
-            'token' => $token->token,
-            'userId' => $token->tokenable_id,
-        ])->post(config('app.identity_server_url') . '/api/synchronize-users');
+            'serverAccessToken' => config('app.identity_server_token'),
+            'microserviceUuid' => config('app.microservice_uuid'),
+            'customerId' => $customerId,
+        ])->post($url);
 
+        // if response is not successful, return the response
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception('Error while synchronizing users: ' . $response->body());
+        }
+
+        debug_logging('got successful response from identity server: ' . $url);
+
+        // otherwise, try to decode the response
         $json = json_decode($response->body(), true);
-
         if (!isset($json['user_data']) || empty($json['user_data']) || !is_array($json['user_data']) || count($json['user_data']) < 1) {
             throw new \Exception('no user data found in response / badly formatted user data');
         }
 
-        // ...process all users in the response
+        debug_logging('processing user data...');
+
+        // ...if all ok, process all users in the response
+        $i = 0;
         foreach($json['user_data'] as $userData) {
+            $i++;
             $ids[] = $userData['id'];
             \App\Models\User::createOrUpdate(
                 id: $userData['id'],
@@ -70,12 +82,19 @@ trait RestUserTrait
             );
         }
 
+        debug_logging('processed ' . $i . ' users');
+
         // de-activate all users not in the response
+        $n = 0;
         $missingUsers = self::query()->whereNotIn('id', $ids)->get();
         foreach($missingUsers as $user) {
+            $n++;
+            debug_logging('de-activating user: ' . $user->id);
             $user->is_active = false;
             $user->save();
         }
+
+        debug_logging('de-activated ' . $n . ' users');
 
     }
 

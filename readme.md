@@ -6,6 +6,8 @@ After installing this package you need to add:
             'auth' => \Autonic\Restuser\Middleware\AuthenticateWithRestUser::class,
         ]);
 
+
+
 [config/app.php]:
 
     'providers' => [
@@ -13,6 +15,22 @@ After installing this package you need to add:
         Autonic\Restuser\RestuserServiceProvider::class,
 
     ]
+
+
+
+[app/models/User.php]:
+
+    use \Autonic\Restuser\RestUserTrait;
+
+
+
+
+[app/models/CustomerSetting.php]:
+
+    use \Autonic\Restuser\CustomerSettingTrait;
+
+
+
 
 [config/auth.php]
 

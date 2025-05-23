@@ -63,6 +63,9 @@ class LoginPage extends Component
         // activate loading animation
         $this->loader = true;
 
+        debug_logging('');
+        debug_logging('requesting API-token for user ' . $this->email);
+
         // preform login to external API
         $authResponse = auth()->authenticate([
             'email' => $this->email,
@@ -71,30 +74,39 @@ class LoginPage extends Component
 
         if ($authResponse->successful()) {
 
+            debug_logging('recieved 200 response from identity server');
+
             // clear the rate limiter for the current user
             RateLimiter::clear($this->throttleKey());
 
             if (auth()->check()) {
 
+                debug_logging('recieved valid API-token from identity server');
+
                 // check if customer settings are set for the customer
                 if (!\App\Models\CustomerSetting::checkDefaultSettings(auth()->customerId())) {
-                    throw ValidationException::withMessages(['email' => 'Grundinställningarna för ditt företag saknas, kontakta supporten']);
+                    $msg = 'Grundinställningarna för ditt företag saknas, kontakta supporten';
+                    error_logging($msg);
+                    $this->loader = false;
+                    auth()->logout();
+                    throw ValidationException::withMessages(['email' => $msg]);
                 }
 
                 // set selected token (we default to first token - user can change it later)
-                session()->put('selected_token', 0);
+                // (this also synchronizes the user data via api)
+                auth()->setSelectedToken(0);
 
-                // fetch user data from API and store in local database
-                \App\Models\User::synchronizeUsers();
+                debug_logging('selected default API-token, redirecting user to: ' . $this->redirectAfterLogin);
 
                 // redirect user to the correct URL
                 return redirect(config('app.url') . $this->redirectAfterLogin);
 
             } else {
 
+                error_logging('could not validate token / auth()->check() failed - loging out user ' . $this->email);
+
                 auth()->logout();
-                session()->invalidate();
-                session()->regenerateToken();
+
                 return redirect(config('app.url') . '/login');
 
             }
@@ -104,10 +116,15 @@ class LoginPage extends Component
             $this->loader = false;
 
             $response = $authResponse->json();
-            Log::error('Login failed for user "' . $this->email . '" with password: ' . $this->password . ' - ' . $authResponse->body());
+
+            error_logging('could not authenticate user ' . $this->email . ' - reason unknown');
+
             throw ValidationException::withMessages(['email' => isset($response['message']) ? $response['message'] : 'Inloggning misslyckades, okänd anledning']);
 
         }
+
+        debug_logging('end of authentication method');
+        debug_logging('');
 
     }
 

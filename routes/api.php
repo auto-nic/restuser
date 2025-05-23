@@ -8,5 +8,6 @@ Route::prefix('api')->group(function () {
 
     Route::post('/create-default-settings', [ApiController::class, 'createDefaultSettings'])->name('create-default-settings');
     Route::post('/check-default-settings', [ApiController::class, 'checkDefaultSettings'])->name('check-default-settings');
-    
+    Route::post('/trigger-user-synchronization', [ApiController::class, 'triggerUserSynchronization'])->name('trigger-user-synchronization');
+
 });

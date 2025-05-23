@@ -113,7 +113,7 @@ class UserGuard implements Guard
 
             } else {
 
-                Log::error('Token validation failed for user "' . $token->tokenable_id . '" with token: ' . $token->token . ' - ' . $response->body());
+                Log::error('Token validation failed for user "' . $token->tokenable_id . '" with token: ' . $token->token . ' - logging out user from microservice');
 
                 // TODO: have a look at this later to handle failure of individual tokens
                 // if any token is not valid, logout the user
@@ -166,8 +166,11 @@ class UserGuard implements Guard
 
     public function setSelectedToken($key)
     {
+
         session(['selected_token' => $key]);
+
         $this->token = $this->tokens()[$key];
+
     }
 
     public function token()

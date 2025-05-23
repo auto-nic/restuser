@@ -42,3 +42,42 @@ if (!function_exists('get_customer_setting')) {
 
     }
 }
+
+if (!function_exists('debug_jobs')) {
+
+    function debug_jobs()
+    {
+        return config('app.debug_jobs');
+    }
+
+}
+
+if (!function_exists('debug_logging')) {
+
+    function debug_logging($message = '')
+    {
+
+        if (debug_jobs()) {
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $callingClass = isset($trace[1]['class']) ? $trace[1]['class'] : null;
+            $callingMethod = isset($trace[1]['function']) ? $trace[1]['function'] : null;
+            \Illuminate\Support\Facades\Log::debug($callingClass . '::' . $callingMethod . '() ' . $message);    
+        }
+
+    }
+
+}
+
+if (!function_exists('error_logging')) {
+
+    function error_logging($message = '')
+    {
+
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $callingClass = isset($trace[1]['class']) ? $trace[1]['class'] : null;
+        $callingMethod = isset($trace[1]['function']) ? $trace[1]['function'] : null;
+        \Illuminate\Support\Facades\Log::error($callingClass . '::' . $callingMethod . '() ' . $message);    
+
+    }
+
+}
