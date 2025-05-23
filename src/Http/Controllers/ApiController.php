@@ -18,41 +18,55 @@ class ApiController extends Controller
 
         $this->ensureIsNotRateLimited();
 
+        debug_logging('');
+
+        debug_logging('rate limit ok');
+
         RateLimiter::hit($this->throttleKey());
 
         // check if the APP_UUID environment variable is set
         $uuid = config('app.microservice_uuid');
         if (empty($uuid)) {
+            $msg = 'The APP_UUID environment variable is not set';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The APP_UUID environment variable is not set.'
+                'error' => $msg
             ], 400);
         };
 
         // check if the table customer_settings exists
         if (!DB::getSchemaBuilder()->hasTable('customer_settings')) {
+            $msg = 'The customer_settings table does not exist';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The customer_settings table does not exist.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting model exists
         if (!class_exists('App\Models\CustomerSetting')) {
+            $msg = 'The CustomerSetting model does not exist';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The CustomerSetting model does not exist.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting method exists
         if (!method_exists('App\Models\CustomerSetting', 'createDefaultSettings')) {
+            $msg = 'The createDefaultSettings method does not exist in the CustomerSetting model';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The createDefaultSettings method does not exist in the CustomerSetting model.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting method exists
         if (!method_exists('App\Models\CustomerSetting', 'checkDefaultSettings')) {
+            $msg = 'The checkDefaultSettings method does not exist in the CustomerSetting model';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The checkDefaultSettings method does not exist in the CustomerSetting model.'
+                'error' => $msg
             ], 400);
         }
 
@@ -61,23 +75,45 @@ class ApiController extends Controller
 
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
+            $msg = 'provided microserviceUuid or customerId is missing';
+            error_logging($msg);
             return response()->json([
-                ''
+                'error' => $msg
             ], 403);
         };
+
+        debug_logging('microserviceUuid "' . $microserviceUuid . '" and customerId "' . $customerId . '" are set in headers');
 
         // check if the microservice_uuid matches the APP_UUID
         if ($microserviceUuid !== $uuid) {
+            $msg = 'provided microserviceUuid does not match APP_UUID';
+            error_logging($msg);
             return response()->json([
-                ''
+                'error' => $msg
             ], 403);
         };
 
+        debug_logging('microserviceUuid "' . $microserviceUuid . '" matches APP_UUID in .env');
+
         // all is ok, attempt to create the default settings
-        \App\Models\CustomerSetting::createDefaultSettings($customerId);
+        try {
+
+            \App\Models\CustomerSetting::createDefaultSettings($customerId);
+
+        } catch (\Exception $e) {
+            $msg = 'Error creating default settings: ' . $e->getMessage();
+            error_logging($msg);
+            return response()->json([
+                'error' => $msg
+            ], 500);
+        }
+
+        debug_logging('created / verified existence of customer settings for customerId "' . $customerId . '"');
 
         // clear the rate limiter for the current user
         RateLimiter::clear($this->throttleKey());
+
+        debug_logging('');
 
         // return success response
         return response()->json([
@@ -96,36 +132,46 @@ class ApiController extends Controller
         // check if the APP_UUID environment variable is set
         $uuid = env('APP_UUID');
         if (empty($uuid)) {
+            $msg = 'The APP_UUID environment variable is not set';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The APP_UUID environment variable is not set.'
+                'error' => $msg
             ], 400);
         };
 
         // check if the table customer_settings exists
         if (!DB::getSchemaBuilder()->hasTable('customer_settings')) {
+            $msg = 'The customer_settings table does not exist';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The customer_settings table does not exist.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting model exists
         if (!class_exists('App\Models\CustomerSetting')) {
+            $msg = 'The CustomerSetting model does not exist';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The CustomerSetting model does not exist.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting method exists
         if (!method_exists('App\Models\CustomerSetting', 'createDefaultSettings')) {
+            $msg = 'The createDefaultSettings method does not exist in the CustomerSetting model';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The createDefaultSettings method does not exist in the CustomerSetting model.'
+                'error' => $msg
             ], 400);
         }
 
         // check if CustomerSetting method exists
         if (!method_exists('App\Models\CustomerSetting', 'checkDefaultSettings')) {
+            $msg = 'The checkDefaultSettings method does not exist in the CustomerSetting model';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The checkDefaultSettings method does not exist in the CustomerSetting model.'
+                'error' => $msg
             ], 400);
         }
 
@@ -134,15 +180,19 @@ class ApiController extends Controller
 
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
+            $msg = 'provided microserviceUuid or customerId is missing';
+            error_logging($msg);
             return response()->json([
-                ''
+                'error' => $msg
             ], 403);
         };
 
         // check if the microservice_uuid matches the APP_UUID
         if ($microserviceUuid !== $uuid) {
+            $msg = 'provided microserviceUuid does not match APP_UUID';
+            error_logging($msg);
             return response()->json([
-                ''
+                'error' => $msg
             ], 403);
         };
 
@@ -153,8 +203,10 @@ class ApiController extends Controller
             RateLimiter::clear($this->throttleKey());
 
             // return success response
+            $msg = 'Default settings found';
+            debug_logging($msg);
             return response()->json([
-                '',
+                $msg,
             ], 200);
 
         } else {
@@ -163,8 +215,10 @@ class ApiController extends Controller
             RateLimiter::clear($this->throttleKey());
 
             // return error response
+            $msg = 'Default settings do not exist';
+            error_logging($msg);
             return response()->json([
-                'error' => 'Default settings do not exist.'
+                'error' => $msg
             ], 400);
 
         }
@@ -175,7 +229,7 @@ class ApiController extends Controller
      * Trigger user synchronization.
      * 
      *   This quirky method exists so that the main server (identity server) can trigger
-     *   a user synchronization on a microservice server.
+     *   a user synchronization request from a microservice server.
      *   This is needed for example when a user is added / removed on the main server.
      *
      * @param \Illuminate\Http\Request $request
@@ -197,8 +251,10 @@ class ApiController extends Controller
         // check if the APP_UUID environment variable is set
         $uuid = config('app.microservice_uuid');
         if (empty($uuid)) {
+            $msg = 'The APP_UUID environment variable is not set.';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The APP_UUID environment variable is not set.'
+                'error' => $msg
             ], 400);
         };
 
@@ -207,8 +263,10 @@ class ApiController extends Controller
         // check if the IDENTITY_SERVER_TOKEN environment variable is set
         $serverToken = config('app.identity_server_token');
         if (empty($serverToken)) {
+            $msg = 'The IDENTITY_SERVER_TOKEN environment variable is not set.';
+            error_logging($msg);
             return response()->json([
-                'error' => 'The IDENTITY_SERVER_TOKEN environment variable is not set.'
+                'error' => $msg
             ], 400);
         };
 
@@ -220,8 +278,10 @@ class ApiController extends Controller
 
         // verify that the microservice_uuid and customer_id are not empty
         if (empty($microserviceUuid) || empty($customerId)) {
+            $msg = 'microserviceUuid or customerId is missing';
+            error_logging($msg);
             return response()->json([
-                'microserviceUuid or customerId is missing'
+                $msg
             ], 403);
         };
 
@@ -229,8 +289,10 @@ class ApiController extends Controller
 
         // check if the microservice_uuid matches the APP_UUID
         if ($microserviceUuid !== $uuid) {
+            $msg = 'microserviceUuid does not match';
+            error_logging($msg);
             return response()->json([
-                'microserviceUuid does not match'
+                $msg
             ], 403);
         };
 
@@ -238,8 +300,10 @@ class ApiController extends Controller
 
         // check if the serverAccessToken matches the IDENTITY_SERVER_TOKEN
         if ($serverAccessToken !== $serverToken) {
+            $msg = 'serverAccessToken does not match';
+            error_logging($msg);
             return response()->json([
-                'serverAccessToken does not match'
+                $msg
             ], 403);
         };
 
